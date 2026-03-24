@@ -18,17 +18,60 @@ int run_ls(char *commande[])
         return 0; // pas cette commande
     }
 
-    if(commande[1] != NULL){
-        printf("Cette commande ne prend pas d'option.\n");
+    if (commande[2] != NULL) {
+        fprintf(stderr, "ls: trop d'arguments\n");
         return 1;
-    }else
-    {
-        char cwd[PATH_MAX];
-        if (getcwd(cwd, sizeof(cwd)) == NULL) {
-            perror("pwd");
-            return 1;
+    }
+
+    // Sans argument, on liste le dossier courant.
+    const char *target = ".";
+    if (commande[1] != NULL) {
+        target = commande[1];
+    }
+
+    // Ouvre le dossier cible et renvoie un handle DIR*.
+    DIR *dir = opendir(target);
+    if (dir == NULL) {
+        perror("ls");
+        return 1;
+    }
+
+    struct dirent *entry;
+    // Compteur pour forcer des retours à la ligne réguliers.
+    int items_in_line = 0;
+    // Nombre de colonnes affichées par ligne.
+    const int columns = 4;
+    // Largeur fixe de chaque "case" d'affichage.
+    const int col_width = 24;
+
+    // errno permet de distinguer fin normale et erreur de readdir.
+    errno = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        // On masque "." et ".." pour un affichage plus propre.
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
         }
-        opendir(cwd);
+
+        // %-*s: aligne le nom à gauche avec une largeur col_width.
+        printf("%-*s", col_width, entry->d_name);
+        items_in_line++;
+        if (items_in_line == columns) {
+            printf("\n");
+            items_in_line = 0;
+        }
+    }
+
+    if (errno != 0) {
+        perror("ls");
+    }
+
+    if (closedir(dir) != 0) {
+        perror("ls");
+    }
+
+    // Si la dernière ligne n'est pas complète, on termine proprement avec un \n.
+    if (items_in_line != 0) {
+        printf("\n");
     }
 
     return 1;
@@ -133,7 +176,14 @@ int main(){
     int on = 1;
     while(on){
 
-        printf("eoka: "); fflush(stdout);//Affichage nom du shell avant l'entrée de commande.
+
+        char cwd[PATH_MAX];
+        if (getcwd(cwd, sizeof(cwd)) == NULL) {
+            perror("pwd");
+            return 1;
+        }
+        printf(cwd,"");
+        printf("/eoka: "); fflush(stdout);//Affichage nom du shell avant l'entrée de commande.
 
         char *line = NULL;
         size_t size = 0;
@@ -176,6 +226,10 @@ int main(){
             free(line);
         }
         else if (run_pwd(commande))
+        {
+            free(line);
+        }
+        else if (run_ls(commande))
         {
             free(line);
         }
