@@ -10,11 +10,28 @@
 #include <limits.h>
 #include <linux/limits.h>
 #include <errno.h>
+#include <dirent.h>
 
-int run_ls(char *commande[]){
+int run_ls(char *commande[])
+{
     if (commande[0] == NULL || strcmp(commande[0], "ls") != 0) {
         return 0; // pas cette commande
     }
+
+    if(commande[1] != NULL){
+        printf("Cette commande ne prend pas d'option.\n");
+        return 1;
+    }else
+    {
+        char cwd[PATH_MAX];
+        if (getcwd(cwd, sizeof(cwd)) == NULL) {
+            perror("pwd");
+            return 1;
+        }
+        opendir(cwd);
+    }
+
+    return 1;
 }
 
 int run_pwd(char *commande[])
