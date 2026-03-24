@@ -18,7 +18,7 @@ int run_ls(char *commande[])
         return 0; // pas cette commande
     }
 
-    if (commande[2] != NULL) {
+    if (commande[1] != NULL && commande[2] != NULL) {
         fprintf(stderr, "ls: trop d'arguments\n");
         return 1;
     }
@@ -198,7 +198,7 @@ int main(){
             line[len - 1] = '\0';
         }
 
-        char *commande[64];
+        char *commande[64] = {0};
         int i = 0;
         char *token = strtok(line, " ");
         while (token != NULL && i < 63) {
