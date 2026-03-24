@@ -7,6 +7,57 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <limits.h>
+#include <linux/limits.h>
+#include <errno.h>
+
+int run_ls(char *commande[]){
+    if (commande[0] == NULL || strcmp(commande[0], "ls") != 0) {
+        return 0; // pas cette commande
+    }
+}
+
+int run_pwd(char *commande[])
+{
+    if (commande[0] == NULL || strcmp(commande[0], "pwd") != 0) {
+        return 0; // pas cette commande
+    }
+
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("pwd");
+        return 1;
+    }
+
+    printf("%s\n", cwd);
+    return 1; // commande traitée
+}
+
+int run_cd(char *commande[])
+{
+    if (commande[0] == NULL || strcmp(commande[0], "cd") != 0) {
+        return 0; // pas cette commande
+    }
+    char *target = commande[1];
+
+    if (target == NULL) {
+        target = getenv("HOME");
+        if (target == NULL) {
+            fprintf(stderr, "cd: HOME non défini\n");
+            return 1;
+        }
+    }
+    if (commande[2] != NULL) {
+        fprintf(stderr, "cd: trop d'arguments\n");
+        return 1;
+    }
+
+    if (chdir(target) != 0) {
+        perror("cd");
+    }
+
+    return 1; // toujours traité comme builtin
+}
 
 int run_ping(char *commande[])
 {
@@ -54,6 +105,7 @@ int run_echo(char *commande[])
         i++;
     }
     printf("\n");
+    return 1;
     
     
 }
@@ -99,6 +151,14 @@ int main(){
             free(line);
         }
         else if (run_echo(commande))
+        {
+            free(line);
+        }
+        else if (run_cd(commande))
+        {
+            free(line);
+        }
+        else if (run_pwd(commande))
         {
             free(line);
         }
