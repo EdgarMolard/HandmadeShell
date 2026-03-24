@@ -12,6 +12,39 @@
 #include <errno.h>
 #include <dirent.h>
 
+
+int run_cat(char *commande[]){
+
+    if (commande[0] == NULL || strcmp(commande[0], "cat") != 0) {
+        return 0; // pas cette commande
+    }
+
+    if (commande[1] == NULL) {
+        fprintf(stderr, "cat: Pas assez d'arguments\n");
+        return 1;
+    }else if(commande[2] == NULL)
+    {
+        FILE *f = fopen(commande[1],"r");
+        if (f == NULL)
+        {
+            perror("cat");
+        }else{
+            char buf[4096];
+            size_t n;
+
+            while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
+                fwrite(buf, 1, n, stdout);//Le cat lit le binaire d'un fichier et le copie dans le flux out
+            }
+            fputc('\n',stdout);
+            fclose(f);
+        }
+    }else{
+        fprintf(stderr, "cat: Trop d'argument, ce cat ne lit qu'un seul fichier par execution pour l'instant.\n");
+    }
+    
+    return 1;
+}
+
 int run_ls(char *commande[])
 {
     if (commande[0] == NULL || strcmp(commande[0], "ls") != 0) {
@@ -217,6 +250,11 @@ int main(){
         if (run_ping(commande)) {
             free(line);
         }
+        else if (run_cat(commande))
+        {
+            free(line);
+        }
+        
         else if (run_echo(commande))
         {
             free(line);
