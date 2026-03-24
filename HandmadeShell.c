@@ -183,7 +183,7 @@ int main(){
             return 1;
         }
         printf(cwd,"");
-        printf("/eoka: "); fflush(stdout);//Affichage nom du shell avant l'entrée de commande.
+        printf("~ eoka: "); fflush(stdout);//Affichage nom du shell avant l'entrée de commande.
 
         char *line = NULL;
         size_t size = 0;
