@@ -36,13 +36,35 @@ int run_ping(char *commande[])
     return 1;
 }
 
+int run_echo(char *commande[])
+{
+    if (commande[0] == NULL || strcmp(commande[0], "echo") != 0) {
+        return 0;
+    }
+
+    if (commande[1] == NULL) {
+        return 1;
+    }
+
+    int i = 1;
+    while (commande[i] != NULL)
+    {
+        printf(commande[i],"");
+        printf(" ");
+        i++;
+    }
+    printf("\n");
+    
+    
+}
+
 int main(){
     printf("Welcome to Handmade Shell!\n");
     
     int on = 1;
     while(on){
 
-        printf("eoka : "); fflush(stdout);//Affichage nom du shell avant l'entrée de commande.
+        printf("eoka: "); fflush(stdout);//Affichage nom du shell avant l'entrée de commande.
 
         char *line = NULL;
         size_t size = 0;
@@ -76,6 +98,11 @@ int main(){
         if (run_ping(commande)) {
             free(line);
         }
+        else if (run_echo(commande))
+        {
+            free(line);
+        }
+        
         else if (commande[0] == NULL) {
             free(line);
         }
