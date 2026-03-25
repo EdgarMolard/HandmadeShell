@@ -2,6 +2,21 @@
 
 Projet visant a recreer un shell minimaliste en C afin d'approfondir mes acquis en bas niveau et de decouvrir de nouvelles logiques.
 
+## Compilation
+
+Le projet est desormais decoupe en plusieurs fichiers C.
+
+- Construire l'executable : `make`
+- Nettoyer les fichiers objets et l'executable : `make clean`
+
+## Structure du projet
+
+- `include/shell.h` : constantes et prototypes partages.
+- `src/main.c` : boucle principale du shell (prompt, lecture, sortie).
+- `src/parser.c` : decoupage de la ligne en tokens.
+- `src/execute.c` : execution simple + gestion des operateurs `&&` et `||`.
+- `src/builtins/` : un fichier C par builtin (`run_cd.c`, `run_ls.c`, etc.).
+
 Au depart, je suis parti d'un projet educatif GitHub, Build_your_own_shell. Je l'ai trouve peu guide et trop complexe pour un debutant. Lien vers le projet initial : [BUILD_YOUR_OWN_SHELL](https://github.com/tokenrove/build-your-own-shell).
 
 A la place, je m'appuie sur l'IA avec le processus suivant :
