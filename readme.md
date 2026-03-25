@@ -2,7 +2,7 @@
 
 Projet visant a recreer un shell minimaliste en C afin d'approfondir mes acquis en bas niveau et de decouvrir de nouvelles logiques.
 
-Au depart, je suis parti d'un projet educatif GitHub, Build_your_own_shell. Je l'ai trouve peu guide et trop complexe pour un debutant. J'en ai conserve les fichiers dans le depot au cas ou.
+Au depart, je suis parti d'un projet educatif GitHub, Build_your_own_shell. Je l'ai trouve peu guide et trop complexe pour un debutant. Lien vers le projet initial : [BUILD_YOUR_OWN_SHELL](https://github.com/tokenrove/build-your-own-shell).
 
 A la place, je m'appuie sur l'IA avec le processus suivant :
 
