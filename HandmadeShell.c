@@ -209,6 +209,15 @@ int run_clear(char *commande[]){
         return 0;
     }
 
+    if (commande[1] != NULL){
+        fprintf(stderr,"clear: trop d'arguments\n");
+        return 1;
+    }
+
+    const char *clear_seq = "\033[2J\033[H\033[3J";
+    write(STDOUT_FILENO, clear_seq, strlen(clear_seq));
+    fflush(stdout);
+
     return 1;
 }
 
@@ -256,7 +265,7 @@ int main(){
             exit(0);//On ferme le programme
         }
         
-        if (run_ping(commande) || run_cat(commande) || run_echo(commande) || run_cd(commande) || run_pwd(commande) || run_ls(commande)){
+        if (run_ping(commande) || run_cat(commande) || run_echo(commande) || run_cd(commande) || run_pwd(commande) || run_ls(commande) || run_clear(commande)){
             free(line);
         }
         else//commande inconnue

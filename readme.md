@@ -21,6 +21,7 @@ Commandes actuellement disponibles dans le shell :
 - `ls` : liste le contenu d'un repertoire (implementation simplifiee).
 - `echo` : affiche les arguments.
 - `cat` : affiche le contenu d'un fichier (version simple).
+- `clear` : efface le contenu du terminal + remet le curseur en haut à gauche
 
 Commande speciale :
 
