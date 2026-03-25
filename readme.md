@@ -22,6 +22,21 @@ Commandes actuellement disponibles dans le shell :
 - `echo` : affiche les arguments.
 - `cat` : affiche le contenu d'un fichier (version simple).
 - `clear` : efface le contenu du terminal + remet le curseur en haut à gauche
+- `true` : retourne un succes (code de sortie `0`).
+- `false` : retourne un echec (code de sortie `1`).
+
+## Operateurs logiques
+
+Le shell gere les operateurs suivants :
+
+- `&&` : execute la commande de droite seulement si la commande de gauche reussit (code `0`).
+- `||` : execute la commande de droite seulement si la commande de gauche echoue (code non nul).
+
+Exemples :
+
+- `true && echo ok`
+- `false || echo ok`
+- `true && false || echo fallback`
 
 Commande speciale :
 

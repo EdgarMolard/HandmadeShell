@@ -12,11 +12,13 @@
 #include <errno.h>
 #include <dirent.h>
 
+#define CMD_NOT_HANDLED -1
+
 
 int run_cat(char *commande[]){
 
     if (commande[0] == NULL || strcmp(commande[0], "cat") != 0) {
-        return 0; // pas cette commande
+        return CMD_NOT_HANDLED;
     }
 
     if (commande[1] == NULL) {
@@ -28,6 +30,7 @@ int run_cat(char *commande[]){
         if (f == NULL)
         {
             perror("cat");
+            return 1;
         }else{
             char buf[4096];
             size_t n;
@@ -37,18 +40,18 @@ int run_cat(char *commande[]){
             }
             fputc('\n',stdout);
             fclose(f);
+            return 0;
         }
     }else{
         fprintf(stderr, "cat: Trop d'argument, ce cat ne lit qu'un seul fichier par execution pour l'instant.\n");
+        return 1;
     }
-    
-    return 1;
 }
 
 int run_ls(char *commande[])
 {
     if (commande[0] == NULL || strcmp(commande[0], "ls") != 0) {
-        return 0; // pas cette commande
+        return CMD_NOT_HANDLED;
     }
 
     if (commande[1] != NULL && commande[2] != NULL) {
@@ -70,6 +73,7 @@ int run_ls(char *commande[])
     }
 
     struct dirent *entry;
+    int had_error = 0;
     // Compteur pour forcer des retours à la ligne réguliers.
     int items_in_line = 0;
     // Nombre de colonnes affichées par ligne.
@@ -96,10 +100,12 @@ int run_ls(char *commande[])
 
     if (errno != 0) {
         perror("ls");
+        had_error = 1;
     }
 
     if (closedir(dir) != 0) {
         perror("ls");
+        had_error = 1;
     }
 
     // Si la dernière ligne n'est pas complète, on termine proprement avec un \n.
@@ -107,13 +113,13 @@ int run_ls(char *commande[])
         printf("\n");
     }
 
-    return 1;
+    return had_error ? 1 : 0;
 }
 
 int run_pwd(char *commande[])
 {
     if (commande[0] == NULL || strcmp(commande[0], "pwd") != 0) {
-        return 0; // pas cette commande
+        return CMD_NOT_HANDLED;
     }
 
     char cwd[PATH_MAX];
@@ -123,13 +129,13 @@ int run_pwd(char *commande[])
     }
 
     printf("%s\n", cwd);
-    return 1; // commande traitée
+    return 0;
 }
 
 int run_cd(char *commande[])
 {
     if (commande[0] == NULL || strcmp(commande[0], "cd") != 0) {
-        return 0; // pas cette commande
+        return CMD_NOT_HANDLED;
     }
     char *target = commande[1];
 
@@ -147,15 +153,16 @@ int run_cd(char *commande[])
 
     if (chdir(target) != 0) {
         perror("cd");
+        return 1;
     }
 
-    return 1; // toujours traité comme builtin
+    return 0;
 }
 
 int run_ping(char *commande[])
 {
     if (commande[0] == NULL || strcmp(commande[0], "ping") != 0) {
-        return 0;
+        return CMD_NOT_HANDLED;
     }
 
     if (commande[1] == NULL || strcmp(commande[1], "localhost") != 0) {
@@ -172,8 +179,16 @@ int run_ping(char *commande[])
     }
 
     if (pid > 0) {
-        waitpid(pid, NULL, 0);
-        return 1;
+        int status = 0;
+        if (waitpid(pid, &status, 0) == -1) {
+            perror("waitpid");
+            return 1;
+        }
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        } else {
+            return 1;
+        }
     }
 
     perror("fork");
@@ -183,22 +198,23 @@ int run_ping(char *commande[])
 int run_echo(char *commande[])
 {
     if (commande[0] == NULL || strcmp(commande[0], "echo") != 0) {
-        return 0;
+        return CMD_NOT_HANDLED;
     }
 
     if (commande[1] == NULL) {
-        return 1;
+        printf("\n");
+        return 0;
     }
 
     int i = 1;
     while (commande[i] != NULL)
     {
-        printf(commande[i],"");
+        printf("%s", commande[i]);
         printf(" ");
         i++;
     }
     printf("\n");
-    return 1;
+    return 0;
     
     
 }
@@ -206,7 +222,7 @@ int run_echo(char *commande[])
 int run_clear(char *commande[]){
 
     if (commande[0] == NULL || strcmp(commande[0], "clear") != 0) {
-        return 0;
+        return CMD_NOT_HANDLED;
     }
 
     if (commande[1] != NULL){
@@ -218,7 +234,112 @@ int run_clear(char *commande[]){
     write(STDOUT_FILENO, clear_seq, strlen(clear_seq));
     fflush(stdout);
 
+    return 0;
+}
+
+int run_true(char *commande[]){
+    if (commande[0] == NULL || strcmp(commande[0], "true") != 0) {
+        return CMD_NOT_HANDLED;
+    }
+
+    return 0;
+}
+
+int run_false(char *commande[]){
+    if (commande[0] == NULL || strcmp(commande[0], "false") != 0) {
+        return CMD_NOT_HANDLED;
+    }
+
     return 1;
+}
+
+// CHANGEMENT: execute une seule commande (sans gerer &&/||)
+int execute_simple(char *commande[]) {
+    if (commande[0] == NULL) {
+        return 0;
+    }
+
+    int status = run_ping(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_cat(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_echo(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_cd(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_pwd(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_ls(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_clear(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_true(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_false(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    if (strcmp(commande[0], "exit") == 0) {
+        return 0;
+    }
+
+    fprintf(stderr, "Commande inconnue\n");
+    return 127;
+}
+
+// CHANGEMENT: gere les enchainements logiques cmd1 && cmd2 et cmd1 || cmd2
+int execute_command(char *commande[]) {
+    int op_index = -1;
+    int is_and = 0;
+    int is_or = 0;
+
+    for (int i = 0; commande[i] != NULL; i++) {
+        if (strcmp(commande[i], "&&") == 0) {
+            op_index = i;
+            is_and = 1;
+            break;
+        }
+        if (strcmp(commande[i], "||") == 0) {
+            op_index = i;
+            is_or = 1;
+            break;
+        }
+    }
+
+    if (op_index == -1) {
+        return execute_simple(commande);
+    }
+
+    // Syntaxe invalide: operateur au debut ou sans commande a droite
+    if (op_index == 0 || commande[op_index + 1] == NULL) {
+        fprintf(stderr, "Erreur de syntaxe pres de '%s'\n", commande[op_index]);
+        return 2;
+    }
+
+    char *right[64] = {0};
+    int j = 0;
+    for (int i = op_index + 1; commande[i] != NULL && j < 63; i++, j++) {
+        right[j] = commande[i];
+    }
+    right[j] = NULL;
+
+    // Coupe la ligne en deux: partie gauche et partie droite
+    commande[op_index] = NULL;
+
+    int left_status = execute_command(commande);
+
+    if ((is_and && left_status == 0) || (is_or && left_status != 0)) {
+        return execute_command(right);
+    }
+
+    return left_status;
 }
 
 int main(){
@@ -233,7 +354,7 @@ int main(){
             perror("pwd");
             return 1;
         }
-        printf(cwd,"");
+        printf("%s", cwd);
         printf("~ eoka: "); fflush(stdout);//Affichage nom du shell avant l'entrée de commande.
 
         char *line = NULL;
@@ -265,19 +386,9 @@ int main(){
             exit(0);//On ferme le programme
         }
         
-        if (run_ping(commande) || run_cat(commande) || run_echo(commande) || run_cd(commande) || run_pwd(commande) || run_ls(commande) || run_clear(commande)){
-            free(line);
-        }
-        else//commande inconnue
-        {
-            if (commande[0]==NULL){
-                free(line);
-
-            }else{
-            printf("Commande inconnue \n");
-            free(line);
-            }
-        }
+        // CHANGEMENT: point d'entree unique pour l'execution (simple, &&, ||)
+        (void)execute_command(commande);
+        free(line);
 
 
     }
