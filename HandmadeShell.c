@@ -247,39 +247,20 @@ int main(){
             exit(0);//On ferme le programme
         }
         
-        if (run_ping(commande)) {
-            free(line);
-        }
-        else if (run_cat(commande))
-        {
-            free(line);
-        }
-        
-        else if (run_echo(commande))
-        {
-            free(line);
-        }
-        else if (run_cd(commande))
-        {
-            free(line);
-        }
-        else if (run_pwd(commande))
-        {
-            free(line);
-        }
-        else if (run_ls(commande))
-        {
-            free(line);
-        }
-        
-        else if (commande[0] == NULL) {
+        if (run_ping(commande) || run_cat(commande) || run_echo(commande) || run_cd(commande) || run_pwd(commande) || run_ls(commande)){
             free(line);
         }
         else//commande inconnue
         {
+            if (commande[0]==NULL){
+                free(line);
+                
+            }else{
             printf("Commande inconnue \n");
             free(line);
+            }
         }
+
 
     }
     return 0;
