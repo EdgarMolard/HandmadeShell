@@ -203,6 +203,15 @@ int run_echo(char *commande[])
     
 }
 
+int run_clear(char *commande[]){
+
+    if (commande[0] == NULL || strcmp(commande[0], "clear") != 0) {
+        return 0;
+    }
+
+    return 1;
+}
+
 int main(){
     printf("Welcome to Handmade Shell!\n");
     
@@ -254,7 +263,7 @@ int main(){
         {
             if (commande[0]==NULL){
                 free(line);
-                
+
             }else{
             printf("Commande inconnue \n");
             free(line);
