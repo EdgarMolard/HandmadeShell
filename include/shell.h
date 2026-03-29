@@ -23,5 +23,8 @@ int run_echo(char *commande[]);
 int run_clear(char *commande[]);
 int run_true(char *commande[]);
 int run_false(char *commande[]);
+int run_mkdir(char *commande[]);
+int run_touch(char *commande[]);
+int run_help(char *commande[]);
 
 #endif

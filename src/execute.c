@@ -38,6 +38,15 @@ int execute_simple(char *commande[])
     status = run_false(commande);
     if (status != CMD_NOT_HANDLED) return status;
 
+    status = run_mkdir(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_touch(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
+    status = run_help(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
     if (is_exit_command(commande)) {
         return 0;
     }

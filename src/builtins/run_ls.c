@@ -2,7 +2,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "shell.h"
 
 int run_ls(char *commande[])
