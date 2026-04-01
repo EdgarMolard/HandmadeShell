@@ -47,11 +47,14 @@ int execute_simple(char *commande[])
     status = run_help(commande);
     if (status != CMD_NOT_HANDLED) return status;
 
+    status = run_cp(commande);
+    if (status != CMD_NOT_HANDLED) return status;
+
     if (is_exit_command(commande)) {
         return 0;
     }
 
-    fprintf(stderr, "Commande inconnue\n");
+    fprintf(stderr, "Commande inconnue, utilisez la commande help\n");
     return 127;
 }
 

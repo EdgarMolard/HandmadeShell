@@ -25,6 +25,7 @@ int run_help(char *commande[])
     printf("  false : Commande qui échoue toujours\n");
     printf("  mkdir <dossier> : Crée un nouveau dossier\n");
     printf("  touch <fichier> : Crée un nouveau fichier ou met à jour la date de modification d'un fichier existant\n");
+    printf("  cp <fichier> <destination> : Créer une copie d'un fichier dans une destination donnée\n");
     printf("  help : Affiche ce message d'aide\n");
     printf("  exit : Quitte le shell\n");
 
